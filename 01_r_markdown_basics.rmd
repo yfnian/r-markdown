@@ -1,0 +1,996 @@
+---
+title: "R Markdown Tutorial"
+session: "01"
+author: Zhifeng Gao, Yefan Nian
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false 
+    lib_dir: libs
+    nature:
+      highlightStyle: dracula
+      highlightLanguage: ["r", "yaml", "markdown"]
+      slideNumberFormat: "%current%/%total%" 
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: "16:9"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: assets/header.html  
+---
+
+name: xaringan-title
+class: left, middle
+
+
+# `r rmarkdown::metadata$title`
+
+
+<img src="https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png" alt="R-markdown" width="180" />
+
+
+.large[`r rmarkdown::metadata$author`  | `r Sys.Date()`]
+
+https://rmarkdown.rstudio.com/index.html
+<!-- this ends up being the title slide since seal = FALSE-->
+
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+episode_counter <- 0
+knitr::opts_chunk$set(
+  collapse = TRUE,   
+  comment = "#>"
+)
+```
+
+```{r packages, include=FALSE}
+library(ymlthis)
+library(tidyverse)
+ggplot2::theme_set(ggplot2::theme_minimal())
+```
+
+```{r load-data, include=FALSE}
+mockdata <- read_csv(here::here("/mockpaper/data/mockboston.csv")) 
+```
+
+
+class: title-slide, center, middle
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffffcc;"></i>
+  <strong class="fa-stack-1x" style="color:#3b4245;">01</strong>
+</span> 
+
+# R Markdown Introduction
+
+
+---
+
+.left-column[
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #2f5275;"></i>
+  <strong class="fa-stack-1x" style="color: #fff;">?</strong>
+</span> 
+]
+
+.right-column[
+
+# What is R Markdown?
+
+1. An authoring framework for data science.
+
+2. [A document format (`.Rmd`).](https://bookdown.org/yihui/rmarkdown/) 
+
+3. [An R package named `rmarkdown`.](https://rmarkdown.rstudio.com/docs/) 
+
+4. [A file format for making dynamic documents with R."](https://rmarkdown.rstudio.com/articles_intro.html) 
+
+5. A tool for integrating text, code, and results.
+
+6. A computational document.
+
+
+]
+
+---
+
+# Advantages of R Markdown Compared to Office
+
+- Interactive visualizations - these make for much more engaging presentations
+
+- More aesthetic control - not limited to Microsoft conventions
+
+- Include code and code results easily and legibly
+
+- Only require a browser to open - do not require Adobe, Powerpoint, or anything else
+
+- Guarantees that the code you included results in the output shown
+
+- Visualization options are only limited by what is possible in R (for example, try making a decent looking Sankey diagram in Excel, Word, or Powerpoint)
+---
+
+class: middle, center
+
+# Output Formats of R Markdown
+
+<img src="https://d33wubrfki0l68.cloudfront.net/6d02e245de5328f2e9c25ca82eb7315717dcafa7/62e43/images/rmarkdownoutputformats.png" alt="R-markdown" width="300" />
+
+https://rmarkdown.rstudio.com/docs/reference/index.tml#section-output-formats
+
+---
+class: top
+
+.left-column[
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #2f5275;"></i>
+  <strong class="fa-stack-1x" style="color: #fff;">?</strong>
+</span> 
+
+]
+
+
+.right-column[
+
+# How *does* R Markdown work?
+
+<img src="https://d33wubrfki0l68.cloudfront.net/61d189fd9cdf955058415d3e1b28dd60e1bd7c9b/9791d/images/rmarkdownflow.png" width="1000" />
+
+
+1. `knitr` executes the code and converts `.Rmd` to `.md`; 
+
+2. **Pandoc** renders the `.md` file to the output format you want. https://pandoc.org/
+
+]
+
+---
+class: middle, center
+
+```{r echo = FALSE, out.width="25%", fig.align="center"}
+knitr::include_graphics("https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/rmarkdown.png")
+```
+
+"In a nutshell, R Markdown stands on the shoulders of `knitr` and **Pandoc**.
+
+The former executes the computer code embedded in Markdown, and converts R Markdown to Markdown.
+
+The latter renders Markdown to the output format you want (such as PDF, HTML, Word, and so on)."
+
+&mdash; [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/)
+
+&mdash; [Chapter of R Markdown from R for Data Science](https://r4ds.had.co.nz/r-markdown.html)
+
+---
+class: title-slide, center, middle
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffffcc;"></i>
+  <strong class="fa-stack-1x" style="color:#3b4245;">02</strong>
+</span> 
+
+# R Markdown Set up
+
+
+---
+
+class: top, left
+
+# Setup R Markdown
+
+1. You can install the R Markdown package from CRAN in R studio:
+
+  ```{r eval = FALSE}
+  install.packages("rmarkdown")
+  ```
+
+2. If you wish to output a PDF file, you need to set up `latex` document system *(If you do not know what `latex` is, please read [here](https://en.wikipedia.org/wiki/LaTeX). It basically is a document system to prepare scientific documents. It is easier to write math equations and draw graphs by writing code. I use it to prepare my [CV](https://yfnian.github.io/files/CV_Yefan_Nian.pdf))*  
+
+  - If you are have already installed `Tex` distribution in your computer, you should be good to go 
+
+      - You may setup `latex` document system in your computer here: https://www.latex-project.org/ 
+  
+  - If you do not set up `latex` document system in your computer and only want to use it for your `Rmd` file, you can set up it in R studio (https://yihui.org/tinytex/):
+  
+  ```{r eval = FALSE}
+  install.packages('tinytex')
+  tinytex::install_tinytex()
+  # to uninstall TinyTeX, run tinytex::uninstall_tinytex()
+  ```
+
+---
+class: title-slide, center, middle
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffffcc;"></i>
+  <strong class="fa-stack-1x" style="color:#3b4245;">03</strong>
+</span> 
+
+# R Markdown Basics
+
+
+---
+
+# Create a R Markdown File in R Studio
+
+To create a new RMarkdown file (.Rmd), select `File -> New File -> R Markdown`..._ in RStudio, then choose the file type you want to create. For now we will focus on a .html Document, which can be easily converted to other file types later.
+
+Once you finished editing your file, you just need to `knit` the file
+
+```{r echo=FALSE, out.width="30%"}
+knitr::include_graphics("images/knit-dropdown.png")
+```
+---
+
+
+# The Structure of a R Markdown File
+
+- YMAL Head (Metadata)
+
+```{r echo = FALSE}
+yml_empty() %>% 
+  yml_title("Title")%>%
+  yml_author("Author Name") %>%
+  yml_date("`r format(Sys.time(), '%B %d, %Y')`") %>%
+  yml_output(html_document(toc = TRUE,
+                           toc_float = TRUE,
+                           theme = "flatly",
+                           df_print = "kable",
+                           code_download = TRUE),
+             word_document(), 
+             pdf_document()) %>% 
+  asis_yaml_output()
+```
+
+- Text
+
+The text file in written using `Markdown` language grammar
+
+---
+
+# What is Hard about YAML?
+
+
++ Indentations matter
+
++ Rarely informative error messages
+
++ Knowing which output options are relevant for different formats (i.e., Word, PDF, HTML, etc.)
+
++ Easy to forget the right `key`
+
++ Easy to forget the possible `values` for a given `key`
+
+GOOGLE IS YOUR BEST FRIEND!
+
+---
+
+class: inverse, center, middle
+
+
+# Text
+
+---
+
+# <center>Headers</center>
+
+.pull-left[
+```markdown
+# HEADER 1
+
+## HEADER 2
+
+### HEADER 3
+
+#### HEADER 4
+
+##### HEADER 5
+
+###### HEADER 6
+```
+]
+
+.pull-right[
+# HEADER 1
+
+## HEADER 2
+
+### HEADER 3
+
+#### HEADER 4
+
+##### HEADER 5
+
+###### HEADER 6
+]
+
+---
+
+![](images/rmd-nav.png)
+
+---
+
+# <center>Text</center>
+
+
+.pull-left[
+```markdown
+Childhood **vaccines**  
+are one of the  
+_great triumphs_  
+of modern medicine. 
+```
+]
+
+.pull-right[
+
+Childhood **vaccines**  
+are one of the  
+_great triumphs_  
+of modern medicine. 
+
+]
+
+---
+class: top
+
+# <center>Lists</center>
+
+.pull-left[
+
+```markdown
+Indeed, parents whose children are  
+vaccinated no longer have to worry about  
+their child's death or disability from:
+
+- whooping cough, 
+- polio, 
+- diphtheria, 
+- hepatitis, or 
+- a host of other infections.
+
+Vaccines are the most cost-effective health  
+care interventions there are. We have   
+three new, extremely effective vaccines to  
+roll out in developing countries:  
+
+1. pneumonia
+1. rotavirus
+1. meningitis A
+```
+
+]
+
+
+.pull-right[
+
+Indeed, parents whose children are  
+vaccinated no longer have to worry about  
+their child's death or disability from:
+
+- whooping cough, 
+- polio, 
+- diphtheria, 
+- hepatitis, or 
+- a host of other infections.
+
+Vaccines are the most cost-effective health  
+care interventions there are. We have  
+three new, extremely effective vaccines to  
+roll out in developing countries:
+
+1. pneumonia
+1. rotavirus
+1. meningitis A
+
+]
+
+---
+
+# <center>Links</center>
+
+.pull-left[
+```markdown
+[google scholar](https://scholar.google.com/)
+
+```
+]
+
+.pull-right[
+
+[google scholar](https://scholar.google.com/)
+
+]
+---
+
+# Code chunks
+
+.pull-left[
+
+````
+```{r}`r ''`
+mockdata %>% 
+  distinct(arm)
+```
+````
+
+]
+
+
+.pull-right[
+
+```{r}
+mockdata %>% 
+  distinct(arm)
+```
+
+]
+
+---
+
+# Code chunks
+
+.pull-left[
+
+````
+```{r}`r ''`
+n_sites <- n_distinct(mockdata$site)
+n_sites
+```
+````
+
+]
+
+
+.pull-right[
+
+```{r}
+n_sites <- n_distinct(mockdata$site)
+n_sites
+```
+  
+]
+
+---
+
+# Code chunks
+
+.pull-left[
+
+````
+```{r}`r ''`
+ggplot(mockdata, aes(x = arm, 
+                     y = n, 
+                     fill = arm)) +
+  geom_col()
+```
+````
+
+]
+
+
+.pull-right[
+
+```{r fig.retina=3, out.width="70%", fig.align='center'}
+ggplot(mockdata, aes(x = arm, 
+                     y = n, 
+                     fill = arm)) +
+  geom_col()
+```
+
+]
+
+---
+
+# Add chunks
+
+button or
+
+Command (or Cmd) `⌘` + Option (or Alt) `⌥` +  `i` (Mac)
+
+Ctrl + Alt + `i` (Windows/Linux)
+
+---
+
+# Run chunks
+
+.pull-left[
+interactively (show button)
+]
+
+.pull-right[
+whole doc (knit button or run all chunks or )
+]
+
+
+---
+
+# Chunk options
+
+.pull-left[
+
+````
+```{r}`r ''`
+glimpse(mockdata)
+```
+````
+
+]
+
+.pull-right[
+
+```{r}
+glimpse(mockdata)
+```
+
+]
+
+---
+
+# echo
+
+.pull-left[
+
+````
+```{r echo=FALSE}`r ''`
+glimpse(mockdata)
+```
+````
+
+]
+
+.pull-right[
+
+```{r echo=FALSE}
+glimpse(mockdata)
+```
+
+]
+
+---
+
+# eval
+
+.pull-left[
+
+````
+```{r eval=FALSE}`r ''`
+glimpse(mockdata)
+```
+````
+
+]
+
+.pull-right[
+
+```{r eval=FALSE}
+glimpse(mockdata)
+```
+
+]
+
+---
+
+# include
+
+.pull-left[
+
+````
+```{r include=FALSE}`r ''`
+glimpse(mockdata)
+```
+````
+
+]
+
+.pull-right[
+
+```{r include=FALSE}
+glimpse(mockdata)
+```
+
+]
+
+---
+
+# Chunk labels
+
+.pull-left[
+
+````
+```{r peek, echo=FALSE, results='hide'}`r ''`
+glimpse(mockdata)
+```
+````
+
+]
+
+.pull-right[
+
++ Place between curly braces<br>`{r label}`
+
++ Separated options with commas<br>`{r label, option1=value}`
+
++ Careful! No duplicate chunk labels
+
+    ````
+    ```{r peek}`r ''`
+    head(mockdata)
+    ```
+    ````
+
+    ```
+    Error in parse_block(g[-1], g[1], params.src) : 
+      duplicate label 'peek'
+    Calls: <Anonymous> ... process_file -> split_file -> lapply -> FUN -> parse_block
+    Execution halted
+    ```
+]
+
+---
+class: middle, center
+
+# A good chunk label
+
+.pull-left[
+
+### Good
+
+`myplot`
+
+`my-plot`
+
+`myPlot`
+
+`myplot1`
+
+]
+
+.pull-right[
+
+### Bad
+
+`my_plot`
+
+`my plot`
+
+everything else!
+
+]
+
+---
+
+# Code Chunk Options Summary
+
+|Rule | Example(default) |Function|
+|:---|:---|:---|
+|eval  |eval=TRUE| Is the code run and the results included in the output?|
+|include |include=TRUE | Are the code and the results included in the output?|
+|echo  |echo=TRUE |Is the code displayed alongside the results?|
+|warning| warning=TRUE|  Are warning messages displayed?|
+|error |error=FALSE| Are error messages displayed?|
+|message| message=TRUE|  Are messages displayed?|
+|tidy  |tidy=FALSE|  Is the code reformatted to make it look “tidy”?|
+|results |results="markup"|  How are results treated?"hide" = no results "asis" = results without formatting "hold" = results only compiled at end of chunk (use if many commands act on one object)|
+|cache |cache=FALSE |Are the results cached for future renders?|
+|comment| comment="##" | What character are comments prefaced with?|
+
+---
+
+
+# <center>Images-I (Using Latex grammar)</center>
+
+**Attention: This might not work when you output your file as html file**
+
+.pull-left[
+```markdown
+![](https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png){width="560" height="315"}
+```
+]
+
+.pull-right[
+![](https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png){width="560" height="315"}
+]
+
+---
+
+
+# <center>Images-II (Using html grammar)</center>
+
+**Attention: This might not work when you output your file as PDF file**
+
+.pull-left[
+```markdown
+<img src="https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png" alt="R-markdown" width="200"/>
+```
+]
+
+.pull-right[
+<img src="https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png" alt="R-markdown"/ width="200">
+]
+
+---
+
+
+# <center>Images-III (Using R chunk code)</center>
+
+
+.pull-left[
+```markdown
+```{r echo=FALSE, out.width="30%"}`r ''`
+knitr::include_graphics("https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png")
+```
+```
+]
+
+.pull-right[
+```{r echo=FALSE, out.width="30%"}
+knitr::include_graphics("https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png")
+```
+]
+
+
+- Code options summary
+
+|Rule | Example(default) |Function|
+|:---|:---|:---|
+|fig.width, fig.height| fig.width=7 |What width/height (in inches) are the plots?|
+|fig.align| fig.align="left"|  "left" "right" "center"|
+
+- It requires a package `knitr`. If you do not have the package, you can install following (https://github.com/yihui/knitr):
+
+```{r eval = FALSE}
+install.packages('knitr')
+```
+---
+
+
+# <center>Tables-I (Using Markdown language grammar)</center>
+
+
+
+.pull-left[
+
+```markdown
+| Time          | Session | Topic    |
+|:--------------|:-------:|---------:|
+| _left_        | _center_| _right_  |
+| 01:00 - 01:50 | 1       | Anatomy  |
+| 01:50 - 02:00 |         | *Break*  |
+| 02:00 - 02:45 | 2       | Tables   |
+| 02:45 - 03:00 |         | *Break*  |
+
+```
+]
+
+
+.pull-right[
+
+| Time          | Session | Topic    |
+|:--------------|:-------:|---------:|
+| _left_        | _center_| _right_  |
+| 01:00 - 01:50 | 1       | Anatomy  |
+| 01:50 - 02:00 |         | *Break*  |
+| 02:00 - 02:45 | 2       | Tables   |
+| 02:45 - 03:00 |         | *Break*  |
+
+]
+
+
+---
+
+# Spacing does not matter
+
+.pull-left[
+```markdown
+| Arm | Drug   |
+|:----|:-------|
+| A   | IFL    |
+| F   | FOLFOX |
+| G   | IROX   |
+```
+]
+
+.pull-right[
+```markdown
+|Arm|Drug|
+|:---|:---|
+|A|IFL|
+|F|FOLFOX|
+|G|IROX|
+```
+]
+
+---
+
+
+# <center>Tables-I (Using R chunk code)</center>
+
+First, load data
+
+
+```{r load-data-1}
+mockdata <- read_csv(here::here("mockpaper/data/mockdata.csv")) %>%
+  mutate(fu_fct = fct_recode(as.factor(fu_stat), 
+                             "Lived" = "1", 
+                             "Died" = "2")) %>% 
+  mutate_at(vars(starts_with("ae_")), ~as.factor(.))
+```
+
+---
+.pull-left[
+
+````
+```{r results='asis'}`r ''`
+mockdata %>% 
+  janitor::tabyl(arm, fu_fct) %>%
+  knitr::kable()
+```
+````
+
+] 
+
+
+.pull-right[
+
+```{r results='asis', echo=FALSE}
+mockdata %>% 
+  janitor::tabyl(arm, fu_fct) %>%
+  knitr::kable()
+```
+
+]
+
+For more details in formating table, please read 
+
+https://bookdown.org/yihui/rmarkdown-cookbook/kable.html
+
+https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf
+
+---
+# Equations
+
+.pull-left[
+
+```latex
+$$
+\begin{aligned}
+A 
+&= \alpha(\beta + \gamma) \\
+&=\alpha \times \beta + \alpha \times \gamma
+\end{aligned}
+$$
+```
+]
+
+.pull-right[
+$$
+\begin{aligned}
+A &= \alpha(\beta + \gamma) \\
+&=\alpha \times \beta + \alpha \times \gamma
+\end{aligned}
+$$
+]
+
+Essentially, it uses `latex` language to write equations. It really simple.
+- If I put an equation within a dollar sign,the equation will be inserted in the line. For example, When I write `"$a=b+c$"`, it will show the equation in the same line: $a=b+c$
+- If I put an equation within two dollar signs, the equation will be inserted in a new line. For example , when I write `"$$a=b+c$$"`, it will show the equation in a new line $$a=b+c$$ 
+
+---
+
+# Cont'd Equations
+
+
+Some useful code for math expressions in `latex`: https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
+
+Another useful tool for writing equations in `latex`: Mathpix Snip. You just need to take a snapshot of an equation, it will generate `latex` code for you. It might be helpful for you to learn how to write math equations in `latex`
+
+https://mathpix.com/
+
+
+
+---
+class: title-slide, center, middle
+
+<span class="fa-stack fa-4x">
+  <i class="fa fa-circle fa-stack-2x" style="color: #ffffffcc;"></i>
+  <strong class="fa-stack-1x" style="color:#3b4245;">04</strong>
+</span> 
+
+# R Markdown Articles
+
+---
+
+# R Notebook
+
+- R Markdown outputs to a non-interactive file format like `.html` or `.pdf.` When presenting your code, this means you have to make a choice, do you want interactive but messy looking code (.Rmd) or non-interactive but neat looking code (`.html`, `.pdf`)? 
+
+- R notebooks provide a file format that combines the interactivity of a .Rmd file with the attractiveness of .html output.
+
+- To create a new R Notebook file, select `File -> New File -> R Notebook`.  
+
+- Difference between R Markdown and R Notebook
+  - For R Markdown, when a chunk is executed, all the code is sent to the console at once. 
+  - In an R Notebook, only one line at a time is sent. This allows execution to stop if a line raises an error in R Notebook.
+
+---
+
+# Formatting your R Markdown File (PDF)
+
+- PDF file: Sometimes you may require some additional `latex` packages to write equations or formating your files (such as set up location of your graphs), you may use `latex` packages by including package names in YAML Head
+
+---
+
+- **Example 1:** I want to write $\mathbb{R}$, it requires a `latex` package `amsmath`. So I include the package name in `extra_dependencies` in the YAML Head:
+  
+  ```YMAL
+  output:
+    pdf_document:
+        extra_dependencies: 
+            ["amsmath"]
+        fig_caption: yes
+        number_sections: true
+        highlight: tango
+  ``` 
+  Then I write `"$\mathbb{R}$"`, it will show $\mathbb{R}$
+
+- **Example 2:** I want to control my graphs' location in the file and I want to have indent in the file, I include the following code in YAML Head
+
+  ```YMAL
+  header-includes:
+   \usepackage{float}
+  \floatplacement{figure}{H}
+  indent: true
+  ```
+---
+
+# Formatting your R Markdown File (Word)
+
+https://bookdown.org/yihui/rmarkdown-cookbook/word-template.html
+
+https://www.coursera.org/lecture/reproducible-templates-analysis/customizing-a-word-document-idnEf
+
+---
+# R Markdown and Other Languages
+
+R Markdown support many languages
+
+```{r}
+names(knitr::knit_engines$get())
+```
+
+- To use `STATA` in R Markdown
+  
+  https://bookdown.org/yihui/rmarkdown-cookbook/eng-stata.html
+  https://www.ssc.wisc.edu/~hemken/Stataworkshops/Stata%20and%20R%20Markdown/StataEnginePath.html#introduction
+
+- To use `Python` in R Markdown
+  https://bookdown.org/yihui/rmarkdown-cookbook/eng-python.html
+
+---
+
+# Other Useful Packages
+
+- `rticles` provides many useful templates for journals, such as AER. 
+
+  https://github.com/rstudio/rticles
+
+- `bookdown` is a useful package to write a book
+   
+   https://bookdown.org/yihui/bookdown/
+
+- `blogdown`  is a useful package to build a simple, free, and static website with `hugo` 
+  https://bookdown.org/yihui/blogdown/
+  - An example: My personal website (https://yfnian.github.io/)
+  
+- `xaringan` is a powerful package to build presentation slides (The one you are seeing now)
+
+  https://github.com/yihui/xaringan
+
+---
+
+class: center, middle
+
+# Thank you 
